@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlmaPrueba1</title>
+<style>
+  * { box-sizing: border-box; }
+  body { 
+    background: #FFEB3B; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    margin: 0; 
+    font-family: sans-serif; 
+    padding: 20px; 
+  }
+  .card { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 24px; 
+    width: 100%; 
+    max-width: 420px; 
+    text-align: center; 
+    border: 2.5px solid #111; 
+  }
+  .pregunta { font-size: 22px; font-weight: 800; margin-bottom: 20px; }
+  input, select { 
+    width: 100%; 
+    padding: 14px; 
+    border-radius: 12px; 
+    border: 2px solid #111; 
+    background: #FFF9C4; 
+    font-weight: 600; 
+    font-size: 16px; 
+  }
+  button { 
+    width: 100%; 
+    padding: 14px; 
+    background: #111; 
+    color: #FFEB3B; 
+    border: none; 
+    border-radius: 12px; 
+    font-weight: bold; 
+    margin-top: 20px; 
+    font-size: 16px; 
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #barra { height: 6px; background: #f0e68c; border-radius: 10px; margin-bottom: 20px; overflow: hidden; } 
+  #progreso { height: 100%; background: #111; width: 0%; transition: .5s; }
+  #foto-final { display: none; } 
+  #foto-final img { width: 100%; border-radius: 15px; margin-top: 15px; border: 2.5px solid #111; }
+  .error { display: none; color: red; font-size: 13px; margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="card" id="app">
+  <div id="barra"><div id="progreso"></div></div>
+  <div id="contenido-pregunta"></div>
+  <p id="error-msg" class="error">Responde para continuar</p>
+  <button id="btn" onclick="siguiente()">Siguiente →</button>
+</div>
+
+<div class="card" id="foto-final">
+  <h2>Gracias por tu sinceridad 💛</h2>
+  <p>Has respondido con el corazón.</p>
+  <img src="foto.jpg" alt="Foto final">
+</div>
+
+<script>
+const preguntas = [
+  { q: "¿Cuál es tu nombre?", tipo: "text" },
+  { q: "¿Cuántos años tienes?", tipo: "number" },
+  { q: "¿Cuál es tu signo zodiacal?", tipo: "select", opciones: ["Aries","Tauro","Géminis","Cáncer","Leo","Virgo","Libra","Escorpio","Sagitario","Capricornio","Acuario","Piscis"] },
+  { q: "¿Tienes pareja?", tipo: "select", opciones: ["Sí","No"] },
+  { q: "¿Confías en tu pareja?", tipo: "select", opciones: ["Sí, totalmente","No mucho","Prefiero no responder"] },
+  { q: "¿Dejarías a tu pareja si no fuera tu alma gemela?", tipo: "select", opciones: ["Sí","No","No lo sé"] },
+  { q: "¿Has respondido con la verdad?", tipo: "select", opciones: ["Sí, 100%","Quizá mentí en algo"] }
+];
+
+let paso = 0; 
+
+function mostrarPregunta(){
+  const p = preguntas[paso]; 
+  document.getElementById('progreso').style.width = (paso / preguntas.length * 100) + '%';
+  
+  let html = `<div class="pregunta">${p.q}</div>`;
+  if (p.tipo === 'select') {
+    html += `<select id="input-actual"><option value="">-- Elige --</option>`;
+    p.opciones.forEach(o => html += `<option value="${o}">${o}</option>`);
+    html += `</select>`;
+  } else {
+    html += `<input id="input-actual" type="${p.tipo}" placeholder="Escribe aquí..." autocomplete="off">`;
+  }
+  document.getElementById('contenido-pregunta').innerHTML = html;
+}
+
+function siguiente(){
+  const input = document.getElementById('input-actual');
+  const error = document.getElementById('error-msg');
+
+  if (!input || !input.value.trim()){ 
+    error.style.display = 'block'; 
+    return; 
+  }
+  
+  error.style.display = 'none';
+  paso++;
+
+  if (paso < preguntas.length) { 
+    mostrarPregunta(); 
+  } else {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('foto-final').style.display = 'block';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', mostrarPregunta);
+</script>
+</body>
+</html>
