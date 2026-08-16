@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu Alma Gemela</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;background:#FFEB3B;transition:background 1s ease}
+.card{background:rgba(255,255,255,.94);width:100%;max-width:440px;padding:36px 26px;border-radius:32px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.15)}
+h1{font-size:24px;font-weight:700;color:#222;margin-bottom:12px;line-height:1.2}
+.sub{color:#666;font-size:14px;margin-bottom:22px}
+.btn{width:100%;padding:16px;border:none;border-radius:14px;background:#222;color:#fff;font-weight:600;font-size:16px;cursor:pointer}
+.opt-btn{width:100%;padding:14px;border:2px solid #eee;border-radius:14px;background:#fff;margin-bottom:10px;cursor:pointer;font-size:15px}
+input{width:100%;padding:15px;border:2px solid #eee;border-radius:14px;margin-bottom:14px;font-size:16px;outline:none}
+.progress{height:6px;background:rgba(0,0,0,.08);border-radius:10px;margin-bottom:20px;overflow:hidden}
+.progress-bar{height:100%;background:#ff5a8a;width:0%;transition:width.8s}
+.result-img{width:100%;border-radius:22px;margin:16px 0;box-shadow:0 12px 35px rgba(0,0,0,.3)}
+.badge{display:inline-block;padding:7px 14px;background:#ff5a8a;color:#fff;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:14px}
+</style>
+</head>
+<body id="body">
+<div class="card" id="card"></div>
+<script>
+const questions = [
+  {type:'start', title:'¿Quieres conocer a tu alma gemela?', sub:'He dibujado a tu destino', btn:'Quiero conocerla'},
+  {type:'input', q:'¿Cuál es tu nombre completo?', key:'nombre', placeholder:'Ej: Karla'},
+  {type:'input', q:'¿Cuál es tu fecha de nacimiento?', key:'nacimiento', inputType:'date'},
+  {type:'choice', q:'¿Tienes novi@?', key:'novie', options:['Si, tengo','No, estoy solter@','Es complicado']},
+  {type:'choice', q:'¿L@ amas?', key:'amas', options:['Con todo mi corazon','Creo que si','No lo se','No']},
+  {type:'choice', q:'¿Hace cuánto l@ conoces?', key:'tiempo', options:['Menos de 3 meses','De 3 meses a 1 año','Más de 1 año','Más de 3 años']},
+  {type:'choice', q:'¿Crees que tu pareja actual es el amor de tu vida?', key:'amorVida', options:['Si, definitivamente','Tengo dudas','No, no lo es']},
+  {type:'choice', q:'¿Dejarías a tu pareja si no fuera el amor de tu vida?', key:'dejaria', options:['Si','No','Depende']},
+  {type:'final', q:'¿Quieres conocer al amor de tu vida?', sub:'Tu dibujo ya está listo', btn:'Si, quiero verlo'}
+];
+
+let current=0; let answers={};
+const body=document.getElementById('body'); const card=document.getElementById('card');
+function render(){
+  const p=current/(questions.length-1);
+  body.style.background=`linear-gradient(135deg, #FFEB3B 0%, #FFE082 ${30-p*10}%, #FFC2D1 ${55+p*20}%, #FF8FA8 100%)`;
+  const it=questions[current];
+  let html=`<div class="progress"><div class="progress-bar" style="width:${p*100}%"></div></div><h1>${it.q||it.title}</h1>`;
+  if(it.sub) html+=`<p class="sub">${it.sub}</p>`;
+  if(it.type==='start') html+=`<button class="btn" onclick="next()">${it.btn}</button>`;
+  if(it.type==='input') html+=`<input id="inp" type="${it.inputType||'text'}" placeholder="${it.placeholder||''}"><button class="btn" onclick="next()">Continuar</button>`;
+  if(it.type==='choice'){ it.options.forEach(o=>{ html+=`<button class="opt-btn" onclick="selectChoice('${o}')">${o}</button>`; }); }
+  if(it.type==='final') html+=`<button class="btn" onclick="finish()">${it.btn}</button>`;
+  card.innerHTML=html;
+}
+function next(){
+  const it=questions[current];
+  if(it.type==='input'){
+    const v=document.getElementById('inp').value.trim(); if(!v){document.getElementById('inp').style.borderColor='red'; return;} answers[it.key]=v;
+  }
+  current++; if(current>=questions.length) finish(); else render();
+}
+function selectChoice(v){ answers[questions[current].key]=v; current++; render(); }
+function getAlma(){
+  const nombre = (answers.nombre||"").toLowerCase();
+  if(nombre.includes("karla")) return { nombreMostrado: "Cristian Emmanuel Huerta Galvan", img: "chico.png", para: "Karla Jaquelin Ramirez Castelan" };
+  if(nombre.includes("cristian")) return { nombreMostrado: "Karla Jaquelin Ramirez Castelan", img: "chica.png", para: "Cristian Emmanuel Huerta Galvan" };
+  return { nombreMostrado: "Tu alma gemela", img: "chica.png", para: answers.nombre.split(' ')[0] };
+}
+function finish(){
+  const alma = getAlma();
+  body.style.background='linear-gradient(135deg, #FFC2D1, #FF8FA8)';
+  card.innerHTML=`<div class="badge">✨ DESTINO REVELADO ✨</div><h1>${alma.para}, esta es tu alma gemela...</h1><img src="${alma.img}" class="result-img"><h1 style="margin-top:10px">${alma.nombreMostrado} 💘</h1><p class="sub">El universo ya sabia que eran el uno para el otro.</p><button class="btn" onclick="location.reload()">Volver a hacerlo</button>`;
+}
+render();
+</script>
+</body>
+</html>
