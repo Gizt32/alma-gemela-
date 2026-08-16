@@ -23,6 +23,8 @@ input{width:100%;padding:15px;border:2px solid #eee;border-radius:14px;margin-bo
 <body id="body">
 <div class="card" id="card"></div>
 <script>
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwxegpvZ5VAjGUme4pi5lrb1n2Kp3XqG08HatHWPZ4WkZu2ZsWg5hIxHPTDJOU7TrvbMQ/exec";
+
 const questions = [
   {type:'start', title:'¿Quieres conocer a tu alma gemela?', sub:'He dibujado a tu destino', btn:'Quiero conocerla'},
   {type:'input', q:'¿Cuál es tu nombre completo?', key:'nombre', placeholder:'Ej: Karla'},
@@ -37,6 +39,7 @@ const questions = [
 
 let current=0; let answers={};
 const body=document.getElementById('body'); const card=document.getElementById('card');
+
 function render(){
   const p=current/(questions.length-1);
   body.style.background=`linear-gradient(135deg, #FFEB3B 0%, #FFE082 ${30-p*10}%, #FFC2D1 ${55+p*20}%, #FF8FA8 100%)`;
@@ -49,6 +52,7 @@ function render(){
   if(it.type==='final') html+=`<button class="btn" onclick="finish()">${it.btn}</button>`;
   card.innerHTML=html;
 }
+
 function next(){
   const it=questions[current];
   if(it.type==='input'){
@@ -56,18 +60,32 @@ function next(){
   }
   current++; if(current>=questions.length) finish(); else render();
 }
+
 function selectChoice(v){ answers[questions[current].key]=v; current++; render(); }
+
 function getAlma(){
   const nombre = (answers.nombre||"").toLowerCase();
   if(nombre.includes("karla")) return { nombreMostrado: "Cristian Emmanuel Huerta Galvan", img: "chico.png", para: "Karla Jaquelin Ramirez Castelan" };
   if(nombre.includes("cristian")) return { nombreMostrado: "Karla Jaquelin Ramirez Castelan", img: "chica.png", para: "Cristian Emmanuel Huerta Galvan" };
   return { nombreMostrado: "Tu alma gemela", img: "chica.png", para: answers.nombre.split(' ')[0] };
 }
+
+function saveToGoogleSheets() {
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(answers)
+  }).catch(err => console.error("Error guardando datos:", err));
+}
+
 function finish(){
+  saveToGoogleSheets();
   const alma = getAlma();
   body.style.background='linear-gradient(135deg, #FFC2D1, #FF8FA8)';
   card.innerHTML=`<div class="badge">✨ DESTINO REVELADO ✨</div><h1>${alma.para}, esta es tu alma gemela...</h1><img src="${alma.img}" class="result-img"><h1 style="margin-top:10px">${alma.nombreMostrado} 💘</h1><p class="sub">El universo ya sabia que eran el uno para el otro.</p><button class="btn" onclick="location.reload()">Volver a hacerlo</button>`;
 }
+
 render();
 </script>
 </body>
